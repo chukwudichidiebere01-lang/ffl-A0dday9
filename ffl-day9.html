@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Fast French Lab — Day 9 · Dire l'heure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D2B;--bg2:#16213E;--bg3:#1E1E4B;
+  --or:#FF9F43;--or2:#ffb366;--orb:rgba(255,159,67,.12);
+  --wh:#FFFFFF;--mut:#A0A0C0;--bdr:rgba(255,159,67,.2);
+  --gn:#2ECC71;--gnb:rgba(46,204,113,.12);
+  --rd:#E74C3C;--rdb:rgba(231,76,60,.12);
+  --sh:0 4px 24px rgba(0,0,0,.4);--r:14px;--r-sm:9px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--wh);min-height:100vh;font-size:16px;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Poppins',sans-serif}
+#wModal{position:fixed;inset:0;z-index:2000;background:linear-gradient(140deg,#0D0D2B,#1E1E4B);display:flex;align-items:center;justify-content:center;padding:16px}
+.wCard{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:22px;padding:32px 24px 26px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.wLogo{font-family:'Poppins',sans-serif;font-weight:900;font-size:1rem;letter-spacing:2px;color:var(--wh);text-align:center;margin-bottom:3px}
+.wLogo em{color:var(--or);font-style:normal}
+.wSub{font-size:.8rem;color:var(--mut);text-align:center;margin-bottom:22px;line-height:1.6}
+.wFg{margin-bottom:14px}.wFg label{display:block;font-size:.79rem;font-weight:600;margin-bottom:5px;color:var(--wh)}
+.wFg input{width:100%;padding:12px 14px;background:var(--bg3);border:1.5px solid var(--bdr);border-radius:10px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;color:var(--wh);transition:border-color .2s}
+.wFg input:focus{border-color:var(--or)}.wFg input.werr{border-color:var(--rd)}
+.wErrMsg{font-size:.74rem;color:var(--rd);margin-top:4px;display:none;font-weight:600}
+.wBtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--or),#e8891e);color:#0D0D2B;border:none;border-radius:50px;font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;margin-top:6px}
+.mood-row{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.mood-btn{font-size:1.5rem;padding:8px;border:2px solid var(--bdr);border-radius:10px;background:var(--bg3);cursor:pointer;transition:all .2s}
+.mood-btn.sel{border-color:var(--or);background:var(--orb)}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.4)}
+.logo{font-family:'Poppins',sans-serif;font-weight:900;font-size:.85rem;letter-spacing:2px;color:var(--wh)}.logo em{color:var(--or);font-style:normal}
+.day-pill{background:linear-gradient(135deg,var(--or),#e8891e);color:#0D0D2B;border-radius:50px;padding:4px 14px;font-size:.72rem;font-weight:800;font-family:'Poppins',sans-serif}
+#lessonTimer{font-size:.78rem;color:var(--mut);font-weight:600}
+.prog-wrap{padding:8px 16px 5px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+.prog-segs{display:flex;gap:4px}
+.prog-seg{flex:1;height:5px;border-radius:999px;background:var(--bg3);transition:background .4s}
+.prog-seg.done{background:var(--or)}.prog-seg.active{background:var(--or);opacity:.6}
+.prog-lbl{display:flex;justify-content:space-between;font-size:.6rem;color:var(--mut);margin-top:3px}
+.wrap{max-width:700px;margin:0 auto;padding:16px 13px 110px}
+.dots{display:flex;gap:5px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.dot{width:34px;height:34px;border-radius:50%;background:var(--bg3);color:var(--mut);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .25s;border:2px solid transparent}
+.dot.active{background:var(--or);color:#0D0D2B;border-color:var(--or2)}.dot.done{background:var(--gnb);color:var(--gn);border-color:var(--gn)}
+.sec{display:none}.sec.show{display:block;animation:slideUp .35s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg2);border-radius:var(--r);padding:20px;margin-bottom:14px;border:1px solid var(--bdr);box-shadow:var(--sh)}
+.card-hdr{display:flex;align-items:center;gap:11px;padding-bottom:13px;border-bottom:1px solid var(--bdr);margin-bottom:16px}
+.card-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:var(--orb)}
+.card-title{font-size:.98rem;font-weight:700;color:var(--wh)}.card-sub{font-size:.72rem;color:var(--mut);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:50px;padding:4px 12px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.b-or{background:var(--orb);color:var(--or);border:1px solid rgba(255,159,67,.3)}.b-gn{background:var(--gnb);color:var(--gn)}
+.tcf-banner{background:var(--orb);border:1px solid rgba(255,159,67,.3);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:13px;font-size:.8rem;color:var(--or);line-height:1.6;font-weight:600}
+.info-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:13px;font-size:.82rem;color:var(--mut);line-height:1.6}
+.info-box strong{color:var(--wh)}
+.gram-box{background:linear-gradient(135deg,#1a1a3e,#0f0f2e);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.gram-box h3{color:var(--or);margin-bottom:8px;font-size:.9rem}.gram-box p{font-size:.84rem;line-height:1.7;color:var(--mut)}
+.gram-rule{background:rgba(255,255,255,.05);border-radius:var(--r-sm);padding:9px 12px;margin-top:9px;font-size:.8rem;line-height:1.65;color:var(--wh)}
+.story-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.story-lbl{font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-family:'Poppins',sans-serif}
+.passage-text{font-size:.88rem;color:var(--wh);line-height:2.1;font-family:'Lora',serif}
+.passage-text strong,.passage-text b{color:var(--or)}
+.fr-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+.fr-table th{background:var(--orb);color:var(--or);padding:8px 10px;text-align:left;font-family:'Poppins',sans-serif;font-size:.74rem}
+.fr-table td{padding:8px 10px;border-bottom:1px solid var(--bdr);color:var(--wh)}
+.txt-inp{width:100%;background:var(--bg3);border:1.5px solid var(--bdr);border-radius:var(--r-sm);padding:10px 12px;font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;line-height:1.65;color:var(--wh);resize:vertical}
+.txt-inp:focus{border-color:var(--or)}.txt-inp.ok{border-color:var(--gn)}.txt-inp.bad{border-color:var(--rd)}.txt-inp::placeholder{color:var(--mut)}
+.fill-inp{background:var(--bg3);border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:.88rem;font-family:'Inter',sans-serif;outline:none;min-width:100px;min-height:36px;vertical-align:middle;color:var(--wh)}
+.fill-inp:focus{border-color:var(--or)}.fill-inp.ok{border-color:var(--gn);background:var(--gnb)}.fill-inp.bad{border-color:var(--rd);background:var(--rdb)}.fill-inp::placeholder{color:var(--mut)}
+.mcq-wrap{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;margin-bottom:12px}
+.mcq-q{font-size:.9rem;font-weight:600;color:var(--wh);margin-bottom:11px;line-height:1.5}
+.mcq-opt{border:1.5px solid var(--bdr);border-radius:10px;padding:10px 13px;margin-bottom:7px;cursor:pointer;font-size:.85rem;transition:all .2s;min-height:44px;display:flex;align-items:center;gap:9px;color:var(--wh);background:var(--bg2)}
+.mcq-opt:hover{border-color:var(--or);background:var(--orb)}
+.mcq-opt.co{border-color:var(--gn)!important;background:var(--gnb)!important;color:var(--gn);font-weight:700}
+.mcq-opt.wo{border-color:var(--rd)!important;background:var(--rdb)!important;color:var(--rd);font-weight:700}
+.mcq-opt.dis{pointer-events:none}
+.mcq-fb{font-size:.78rem;margin-top:7px;padding:9px 12px;border-radius:9px;display:none;font-weight:600;line-height:1.5}.mcq-fb.show{display:block}
+.btn-or{background:linear-gradient(135deg,var(--or),#e8891e);color:#0D0D2B;border:none;border-radius:50px;min-height:42px;padding:0 20px;font-size:.82rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;font-family:'Poppins',sans-serif}
+.btn-or:hover{opacity:.88}
+.btn-out{background:transparent;color:var(--or);border:1.5px solid var(--or);border-radius:50px;min-height:40px;padding:0 18px;font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-out:hover{background:var(--orb)}
+.btn-gn{background:linear-gradient(135deg,var(--gn),#27ae60);color:#0D0D2B;border:none;border-radius:50px;min-height:42px;padding:0 20px;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.btn-rec{background:linear-gradient(135deg,var(--rd),#c0392b);color:var(--wh);border:none;border-radius:50px;min-height:42px;padding:0 18px;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-rec.on{animation:rp 1.2s infinite}
+@keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}50%{box-shadow:0 0 0 12px rgba(231,76,60,0)}}
+.btn-pb{background:linear-gradient(135deg,var(--gn),#27ae60);color:#0D0D2B;border:none;border-radius:50px;min-height:40px;padding:0 16px;font-size:.8rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.btn-pb.show{display:inline-flex}
+.redo-btn{background:var(--bg3);color:var(--mut);border:1px solid var(--bdr);border-radius:50px;padding:7px 15px;font-size:.74rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;transition:all .2s}
+.redo-btn:hover{border-color:var(--or);color:var(--or)}
+.aud-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.nav-bar{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+.btn-nxt{background:linear-gradient(135deg,var(--or),#e8891e);color:#0D0D2B;border:none;border-radius:50px;min-height:50px;padding:0 28px;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;box-shadow:0 4px 20px rgba(255,159,67,.35)}
+.btn-nxt:hover{transform:translateY(-2px)}
+.btn-prv{background:var(--bg3);color:var(--wh);border:1px solid var(--bdr);border-radius:50px;min-height:48px;padding:0 22px;font-size:.86rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-prv:hover{border-color:var(--or);color:var(--or)}
+.score-box{background:var(--gnb);border:1px solid var(--gn);border-radius:var(--r-sm);padding:12px;text-align:center;display:none;margin-top:10px}
+.score-box.show{display:block}.score-num{font-size:2rem;font-weight:900;color:var(--gn);font-family:'Poppins',sans-serif}
+.vf{cursor:pointer;color:var(--or);font-weight:700;border-bottom:1px dashed var(--or);position:relative}
+.vf-tooltip{display:none;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#1a1a3e;border:1.5px solid var(--or);border-radius:var(--r-sm);padding:10px 13px;min-width:200px;font-size:.78rem;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.6);line-height:1.6;font-style:normal;color:var(--wh)}
+.vf-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1a1a3e}
+.vf:hover .vf-tooltip{display:block}
+.vf-tooltip .vf-en{font-weight:700;color:var(--or)}.vf-tooltip .vf-ipa{color:var(--mut);font-size:.72rem}.vf-tooltip .vf-ex{margin-top:4px;font-style:italic;color:var(--mut)}
+.coach-wrap{position:fixed;bottom:15px;right:14px;z-index:500;display:flex;flex-direction:column;align-items:flex-end}
+.coach-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--or),#e8891e);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;animation:float 3s ease-in-out infinite;box-shadow:0 4px 20px rgba(255,159,67,.4)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.coach-msg{background:var(--bg2);border-radius:14px;border:1.5px solid var(--bdr);padding:11px 14px;max-width:220px;margin-bottom:9px;box-shadow:var(--sh);font-size:.77rem;color:var(--wh);line-height:1.55;display:none}
+.coach-msg.show{display:block;animation:fu .3s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.coach-name{font-size:.62rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Poppins',sans-serif}
+.phrase-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:.83rem;align-items:flex-start}
+.phrase-row:last-child{border-bottom:none}
+.phrase-fr{font-weight:700;color:var(--wh);flex:1;cursor:pointer}.phrase-fr:hover{color:var(--or)}
+.phrase-en{color:var(--mut);flex:1;font-size:.78rem}
+.write-prompt{background:var(--orb);border:1px solid rgba(255,159,67,.3);border-radius:var(--r-sm);padding:13px;margin-bottom:11px}
+.wp-lbl{font-size:.63rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-family:'Poppins',sans-serif}
+.wp-q{font-size:.86rem;font-weight:600;color:var(--wh);line-height:1.55}
+#timer-display{font-size:2.5rem;font-weight:900;color:var(--or);font-family:'Poppins',sans-serif;text-align:center;margin:10px 0}
+#timer-display.urgent{color:var(--rd);animation:pulse .5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.wc-display{font-size:.72rem;color:var(--mut);text-align:right;margin-top:4px}
+.checklist-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.82rem}
+.checklist-item.ok{color:var(--gn)}.checklist-item.fail{color:var(--rd)}
+.gate-overlay{background:var(--rdb);border:1.5px solid var(--rd);border-radius:var(--r);padding:16px;text-align:center;display:none;margin-top:10px}
+.gate-overlay.show{display:block}.gate-overlay p{color:var(--rd);font-weight:700;margin-bottom:10px;font-size:.87rem}
+.collapsible{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.collapsible-hdr{padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.88rem;font-weight:700;color:var(--wh)}
+.collapsible-hdr:hover{background:rgba(255,255,255,.03)}.collapsible-hdr .arr{transition:transform .3s;color:var(--or)}
+.collapsible-body{display:none;padding:0 16px 16px}.collapsible.open .collapsible-body{display:block}.collapsible.open .arr{transform:rotate(180deg)}
+.dialogue-line{background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.dl-speaker{font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Poppins',sans-serif}
+.dl-text{font-size:.9rem;color:var(--wh);font-family:'Lora',serif;line-height:1.6;margin-bottom:8px}
+.dl-en{font-size:.75rem;color:var(--mut);filter:blur(4px);transition:filter .3s;cursor:pointer}.dl-en.show{filter:none}
+.err-sent{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r-sm);padding:13px;margin-bottom:10px}
+.err-num{font-size:.64rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:6px;font-family:'Poppins',sans-serif}
+.err-text{font-size:.92rem;color:var(--wh);line-height:2;font-family:'Lora',serif}
+.err-word{cursor:pointer;padding:2px 5px;border-radius:4px;transition:all .2s;border-bottom:1.5px dashed rgba(255,159,67,.4)}
+.err-word:hover{background:var(--orb);color:var(--or)}.err-word.selected{background:var(--orb);color:var(--or)}
+.err-word.correct{background:var(--gnb);color:var(--gn)}.err-word.wrong{background:var(--rdb);color:var(--rd)}
+.err-dropdown{display:none;gap:6px;flex-wrap:wrap;margin-top:8px}.err-dropdown.show{display:flex}
+.err-choice{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:6px;padding:5px 12px;font-size:.82rem;cursor:pointer;color:var(--wh);transition:all .15s}
+.err-choice:hover{border-color:var(--or);color:var(--or)}
+.err-fb{font-size:.78rem;margin-top:7px;color:var(--mut);display:none;line-height:1.5}.err-fb.show{display:block}
+.ubar{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.ubtn{border:1.5px solid var(--bdr);border-radius:50px;padding:8px 12px;font-size:.79rem;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--mut);min-height:42px;transition:all .2s;flex:1;text-align:center;font-family:'Inter',sans-serif}
+.ubtn.sel{background:var(--or);color:#0D0D2B;border-color:var(--or)}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
+.cf{position:absolute;width:8px;height:8px;border-radius:2px;animation:fall 2.2s ease forwards}
+@keyframes fall{0%{opacity:1;transform:translateY(-10px) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+#completionScreen{display:none;padding:2rem 1rem 6rem;max-width:500px;margin:0 auto;text-align:center}
+#completionScreen.show{display:block;animation:slideUp .4s ease}
+.comp-trophy{font-size:4rem;margin-bottom:1rem}.comp-title{font-family:'Poppins',sans-serif;font-size:1.8rem;color:var(--or);margin-bottom:.4rem}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:1.2rem 0}
+.stat-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;text-align:center}
+.stat-val{font-size:1.5rem;font-weight:900;color:var(--or);font-family:'Poppins',sans-serif}.stat-lbl{font-size:.72rem;color:var(--mut);margin-top:3px}
+#toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:600;background:var(--bg2);border:1.5px solid var(--bdr);border-radius:50px;padding:9px 20px;font-size:.78rem;font-weight:600;color:var(--wh);box-shadow:var(--sh);display:none;white-space:nowrap}
+#dictFab{position:fixed;bottom:78px;right:14px;z-index:400;width:46px;height:46px;border-radius:50%;background:var(--bg3);color:var(--or);border:1.5px solid var(--bdr);font-size:1.1rem;cursor:pointer;box-shadow:var(--sh);display:none;align-items:center;justify-content:center;transition:all .2s}
+#dictFab:hover{border-color:var(--or)}
+#dictPanel{position:fixed;bottom:0;left:0;right:0;z-index:600;background:var(--bg2);border-radius:22px 22px 0 0;padding:18px 16px 30px;box-shadow:0 -8px 40px rgba(0,0,0,.5);transform:translateY(100%);transition:transform .32s;max-height:75vh;overflow-y:auto;border-top:1px solid var(--bdr);position:relative}
+#dictPanel.open{transform:translateY(0)}
+.dp-handle{width:36px;height:4px;background:var(--bdr);border-radius:99px;margin:0 auto 14px}
+#dictPanel h3{font-size:.9rem;font-weight:700;color:var(--wh);margin-bottom:4px}
+.dpNote{font-size:.72rem;color:var(--mut);margin-bottom:12px}
+.dp-row{display:flex;gap:8px;margin-bottom:10px}
+#dpWord{flex:1;padding:10px 13px;background:var(--bg3);border:1.5px solid var(--bdr);border-radius:50px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;color:var(--wh)}
+#dpWord:focus{border-color:var(--or)}
+#dpGo{background:var(--or);color:#0D0D2B;border:none;border-radius:50px;padding:10px 18px;font-family:'Poppins',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap}
+#dpLinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dp-link{display:inline-block;background:var(--orb);color:var(--or);text-decoration:none;padding:8px 14px;border-radius:50px;font-size:.8rem;font-weight:700;border:1px solid rgba(255,159,67,.3);cursor:pointer;transition:all .2s}
+.dp-link:hover{background:var(--or);color:#0D0D2B}
+#dpClose{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--mut)}
+.clock-challenge{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;margin-bottom:12px;text-align:center}
+.clock-time-display{font-size:2.5rem;font-weight:900;color:var(--or);font-family:'Poppins',sans-serif;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div id="confettiBox" class="confetti-container"></div>
+<!-- WELCOME MODAL -->
+<div id="wModal">
+  <div class="wCard">
+    <div class="wLogo">FAST <em>FRENCH</em> LAB</div>
+    <p class="wSub">Jour 9 · Dire l'heure — Telling Time<br>Enter your details to unlock today's lesson.</p>
+    <div style="margin-bottom:14px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:'Poppins',sans-serif">How are you feeling right now?</div>
+      <div class="mood-row" id="moodStartRow">
+        <button class="mood-btn" onclick="selMood('start',this,'😩')">😩</button>
+        <button class="mood-btn" onclick="selMood('start',this,'😐')">😐</button>
+        <button class="mood-btn" onclick="selMood('start',this,'🙂')">🙂</button>
+        <button class="mood-btn" onclick="selMood('start',this,'😄')">😄</button>
+        <button class="mood-btn" onclick="selMood('start',this,'🔥')">🔥</button>
+      </div>
+    </div>
+    <div class="wFg"><label for="wName">Your Full Name</label><input type="text" id="wName" placeholder="Ex: Amara Diallo" autocomplete="name"><p class="wErrMsg" id="wNameErr">Please enter your name.</p></div>
+    <div class="wFg"><label for="wEmail">Your Email</label><input type="email" id="wEmail" placeholder="Ex: amara@email.com" autocomplete="email"><p class="wErrMsg" id="wEmailErr">Please enter a valid email.</p></div>
+    <button class="wBtn" onclick="startLesson()">Commencer la leçon →</button>
+  </div>
+</div>
+<div id="toast"></div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">FAST <em>FRENCH</em> LAB</div>
+  <div style="display:flex;align-items:center;gap:10px"><span id="lessonTimer">0:00</span><div class="day-pill">⏰ DAY 9</div></div>
+</div>
+<div class="prog-wrap">
+  <div class="prog-segs" id="progSegs"></div>
+  <div class="prog-lbl"><span>Warm-Up</span><span>Clock</span><span>Reading</span><span>Errors</span><span>Dialogue</span><span>Writing</span><span>Quiz</span></div>
+</div>
+<div class="wrap">
+<div class="dots" id="dotsWrap"></div>
+
+<!-- PART 1 -->
+<div class="sec show" id="sec1">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">✍️</div><div><div class="card-title">Part 1 — Warm-Up: Copy & Fill</div><div class="card-sub">Activity 1 of 7 · Copy · Fill in the blanks · TCF muscle memory</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Canada Tip:</strong> In the writing section, accurate sentence structure earns points. Copying trains your muscle memory for correct French form.</div>
+  <div class="gram-box"><h3>👩🏾‍🏫 Coach Linda says:</h3><p>"Bonjour! Ready for Day 9? Today we tackle TIME — and time is everything on your TCF exam. Let's warm up your writing hand!"</p></div>
+  <div class="badge b-or">✍️ 1A — Copy Activity</div>
+  <div class="story-box">
+    <div class="story-lbl">📋 Read carefully — then copy below word for word:</div>
+    <div class="passage-text">En France, on utilise <span class="vf">l'horloge de vingt-quatre heures<span class="vf-tooltip"><span class="vf-en">the 24-hour clock</span><span class="vf-ipa">[vɛ̃t katʁ œʁ]</span><span class="vf-ex">Il est vingt heures = 8pm</span></span></span>. Par exemple, <span class="vf">quatorze heures<span class="vf-tooltip"><span class="vf-en">14:00 = 2pm</span><span class="vf-ipa">[katɔʁz œʁ]</span><span class="vf-ex">Le film commence à quatorze heures.</span></span></span>, c'est deux heures de l'après-midi. Il est important de connaître <span class="vf">l'heure<span class="vf-tooltip"><span class="vf-en">the time / the hour</span><span class="vf-ipa">[lœʁ]</span><span class="vf-ex">Quelle heure est-il ?</span></span></span> pour réussir le TCF Canada. Je dois être à <span class="vf">l'aéroport<span class="vf-tooltip"><span class="vf-en">the airport</span><span class="vf-ipa">[laeʁɔpɔʁ]</span><span class="vf-ex">Je suis à l'aéroport à huit heures.</span></span></span> à <span class="vf">dix-neuf heures trente<span class="vf-tooltip"><span class="vf-en">19:30 = 7:30pm</span><span class="vf-ipa">[di nœf œʁ tʁɑ̃t]</span><span class="vf-ex">Le train part à dix-neuf heures trente.</span></span></span>.</div>
+    <div class="aud-row">
+      <button class="btn-or" onclick="spk(COPY_TEXT,this)">🔊 Listen</button>
+      <button class="btn-out" onclick="spk(COPY_TEXT,this,0.6)">🐢 Slow</button>
+      <button class="btn-rec" id="cr1" onclick="dRec('cr1','cp1')">🎤 Record</button>
+      <button class="btn-pb" id="cp1" onclick="pBlob('cp1')">▶️ Hear Me</button>
+    </div>
+  </div>
+  <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:'Poppins',sans-serif">✏️ Now copy the paragraph exactly — every accent counts:</div>
+  <textarea class="txt-inp" id="copyTA" rows="5" placeholder="Type the paragraph here exactly..."></textarea>
+  <div class="aud-row" style="margin-top:8px">
+    <button class="btn-gn" onclick="checkCopy()">✅ Check My Copy</button>
+    <button class="redo-btn" onclick="document.getElementById('copyTA').value='';document.getElementById('copyFb').style.display='none'">🔄 Redo</button>
+  </div>
+  <div id="copyFb" style="display:none;margin-top:9px;padding:11px 14px;border-radius:10px;font-size:.82rem;font-weight:700;line-height:1.6"></div>
+  <div class="gate-overlay" id="gate1"><p>⛔ Coach Linda: "Below 60% — focus on accents (é, è, à). Let's try again!"</p><button class="btn-or" onclick="document.getElementById('copyTA').value='';document.getElementById('copyFb').style.display='none';document.getElementById('gate1').classList.remove('show')">🔄 Try Again</button></div>
+</div>
+<div class="card">
+  <div class="badge b-or">1B — Fill in the Blanks</div>
+  <div class="info-box">👁️ Cover the paragraph above. Fill in the 5 missing time words from memory.</div>
+  <div id="clozeWrap"></div>
+  <div class="aud-row">
+    <button class="btn-gn" onclick="checkCloze()">✅ Check Cloze</button>
+    <button class="redo-btn" onclick="resetCloze()">🔄 Redo</button>
+  </div>
+  <div id="clozeFb" style="display:none;margin-top:9px;padding:11px;border-radius:10px;font-size:.82rem;font-weight:700"></div>
+</div>
+<div class="nav-bar"><div></div><button class="btn-nxt" onclick="goSec(2)">The Clock →</button></div>
+</div>
+
+<!-- PART 2 -->
+<div class="sec" id="sec2">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">🕐</div><div><div class="card-title">Part 2 — The Clock, il est & l'heure</div><div class="card-sub">Activity 2 of 7 · Time rules · Clock challenges · Listening quiz</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Canada:</strong> Tested in Listening AND Speaking. Knowing both formal and informal time will protect your marks.</div>
+  <div class="collapsible open" id="rulesCol">
+    <div class="collapsible-hdr" onclick="toggleCol('rulesCol')">🇫🇷 How to Say Time in French — Rules that Save Your Marks <span class="arr">▼</span></div>
+    <div class="collapsible-body">
+      <table class="fr-table">
+        <tr><th>Expression</th><th>Use</th><th>Example</th></tr>
+        <tr><td><span class="vf">il est<span class="vf-tooltip"><span class="vf-en">it is (for time only)</span><span class="vf-ipa">[il ɛ]</span><span class="vf-ex">Il est trois heures.</span></span></span></td><td>Stating the time</td><td>Il est trois heures.</td></tr>
+        <tr><td><span class="vf">et quart<span class="vf-tooltip"><span class="vf-en">quarter past = +15min</span><span class="vf-ipa">[e kaʁ]</span><span class="vf-ex">Il est deux heures et quart.</span></span></span></td><td>+15 min</td><td>Il est trois heures et quart</td></tr>
+        <tr><td><span class="vf">et demie<span class="vf-tooltip"><span class="vf-en">half past = +30min</span><span class="vf-ipa">[e dəmi]</span><span class="vf-ex">Il est cinq heures et demie.</span></span></span></td><td>+30 min</td><td>Il est trois heures et demie</td></tr>
+        <tr><td><span class="vf">moins le quart<span class="vf-tooltip"><span class="vf-en">quarter to = -15min</span><span class="vf-ipa">[mwɛ̃ lə kaʁ]</span><span class="vf-ex">Il est quatre heures moins le quart.</span></span></span></td><td>-15 min</td><td>Il est quatre heures moins le quart</td></tr>
+        <tr><td><span class="vf">midi<span class="vf-tooltip"><span class="vf-en">noon / 12:00</span><span class="vf-ipa">[midi]</span><span class="vf-ex">Il est midi pile.</span></span></span></td><td>12:00</td><td>Il est midi.</td></tr>
+        <tr><td><span class="vf">minuit<span class="vf-tooltip"><span class="vf-en">midnight / 00:00</span><span class="vf-ipa">[minɥi]</span><span class="vf-ex">Il est minuit moins cinq.</span></span></span></td><td>00:00</td><td>Il est minuit.</td></tr>
+      </table>
+      <div class="gram-rule">💡 <strong>Two ways to say 2:10:</strong><br>Option A: "Il est deux heures dix" — most natural, safest for TCF ✅<br>Option B: "Il est deux heures et dix minutes" — more formal</div>
+      <div style="margin-top:8px;background:var(--orb);border-radius:var(--r-sm);padding:9px 12px;font-size:.81rem;color:var(--or);font-weight:600">👩🏾‍🏫 Coach Linda: "For TCF, use Option A — clear, natural, and examiners reward it."</div>
+    </div>
+  </div>
+  <div class="badge b-or">2A — Clock Challenges</div>
+  <div id="clockChallenges"></div>
+  <div class="badge b-or" style="margin-top:14px">2B — Listening: Which time did you hear?</div>
+  <div class="tcf-banner">🎧 Press PLAY. Choose the time you heard.</div>
+  <div id="listeningQuiz"></div>
+  <div class="score-box" id="listenScore"><div class="score-num" id="listenScoreNum">0/10</div><p style="font-size:.8rem;color:var(--mut);margin-top:4px">Listening Score</p></div>
+  <button class="btn-gn" style="margin-top:10px;display:none" id="listenSubmitBtn" onclick="checkListening()">✅ Check Listening Score</button>
+  <div class="gate-overlay" id="gate2"><p>⛔ Below 70% — Coach Linda: "Precision listening is a TCF superpower! Let's go again."</p><button class="btn-or" onclick="retryListening()">🔄 Retry</button></div>
+  <div class="badge b-or" style="margin-top:14px">2C — Mon planning du jour — Listen & Write the Times</div>
+  <div class="story-box">
+    <div class="story-lbl">🎧 Listen to the monologue. Write the 8 times you hear in French words.</div>
+    <div class="passage-text" id="planningText" style="display:none"></div>
+    <div class="aud-row">
+      <button class="btn-or" onclick="spk(PLANNING_TEXT,this,1)">▶ 1x</button>
+      <button class="btn-out" onclick="spk(PLANNING_TEXT,this,0.72)">0.75x</button>
+      <button class="btn-out" onclick="togglePlanning()">👁️ Show Text</button>
+    </div>
+  </div>
+  <div id="planningInputs"></div>
+  <div class="aud-row">
+    <button class="btn-gn" onclick="checkPlanning()">✅ Check Times</button>
+    <button class="redo-btn" onclick="resetPlanning()">🔄 Redo</button>
+  </div>
+  <div id="planningFb" style="display:none;margin-top:9px;padding:11px;border-radius:10px;font-size:.82rem;font-weight:700"></div>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(1)">← Back</button><button class="btn-nxt" onclick="goSec(3)">Reading →</button></div>
+</div>
+
+<!-- PART 3 -->
+<div class="sec" id="sec3">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">📖</div><div><div class="card-title">Part 3 — Reading Comprehension</div><div class="card-sub">Activity 3 of 7 · Read · Listen · Answer questions</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Reading:</strong> Tests your ability to extract times, dates, and schedules. This passage mirrors real exam format.</div>
+  <div class="gram-box"><h3>👩🏾‍🏫 Coach Linda says:</h3><p>"Reading carefully is your superpower on TCF. Look for <span class="vf">time markers<span class="vf-tooltip"><span class="vf-en">marqueurs de temps</span><span class="vf-ipa">[maʁkœʁ də tɑ̃]</span><span class="vf-ex">à neuf heures, avant midi, après-midi</span></span></span> — they are clues the examiners hide in plain sight!"</p></div>
+  <div class="story-box">
+    <div class="story-lbl">📖 Une journée bien chargée — Read & Listen</div>
+    <div class="passage-text">
+      Sophie est une femme très occupée. Aujourd'hui, c'est le <strong>mardi 14 mars</strong> et elle a beaucoup de choses à faire.<br><br>
+      À <span class="vf">sept heures<span class="vf-tooltip"><span class="vf-en">seven o'clock = 07:00</span><span class="vf-ipa">[sɛt œʁ]</span><span class="vf-ex">Je me lève à sept heures.</span></span></span>, elle se lève. À <strong>huit heures trente</strong>, elle emmène sa fille à <span class="vf">l'école<span class="vf-tooltip"><span class="vf-en">school</span><span class="vf-ipa">[lekɔl]</span><span class="vf-ex">Je vais à l'école.</span></span></span>. Elle a un rendez-vous à <span class="vf">la pharmacie<span class="vf-tooltip"><span class="vf-en">the pharmacy</span><span class="vf-ipa">[la faʁmasi]</span><span class="vf-ex">Je dois aller à la pharmacie.</span></span></span> à <strong>neuf heures quinze</strong>.<br><br>
+      À <strong>onze heures</strong>, elle va à <span class="vf">la mairie<span class="vf-tooltip"><span class="vf-en">the town hall</span><span class="vf-ipa">[la meʁi]</span><span class="vf-ex">La mairie ferme à dix-sept heures.</span></span></span>. <em>"À quelle heure tu reviens ?"</em> demande son mari Omar. <em>"Je vais revenir à <strong>treize heures</strong>,"</em> dit Sophie. <em>"Mais d'abord, je vais au <span class="vf">supermarché<span class="vf-tooltip"><span class="vf-en">supermarket</span><span class="vf-ipa">[sypɛʁmaʁʃe]</span><span class="vf-ex">Je vais au supermarché le samedi.</span></span></span> avant midi."</em><br><br>
+      À <strong>quinze heures trente</strong>, elle récupère sa fille. À <strong>dix-sept heures</strong>, elle a un cours de français. Le soir, à <strong>vingt heures</strong>, toute la famille mange ensemble. Sophie dit à <strong>vingt-deux heures</strong>: <em>"Une journée bien chargée, mais bien réussie !"</em>
+    </div>
+    <div class="aud-row">
+      <button class="btn-or" onclick="spk(SOPHIE_TEXT,this)">🔊 Listen</button>
+      <button class="btn-out" onclick="spk(SOPHIE_TEXT,this,0.62)">🐢 Slow</button>
+    </div>
+  </div>
+  <div id="compQuestions"></div>
+  <div class="aud-row" style="margin-top:10px">
+    <button class="btn-gn" onclick="checkComp()">✅ Submit Answers</button>
+    <button class="redo-btn" onclick="resetComp()">🔄 Redo</button>
+  </div>
+  <div class="score-box" id="compScore"><div class="score-num" id="compScoreNum">0/8</div><p style="font-size:.8rem;color:var(--mut);margin-top:4px">Comprehension Score</p></div>
+  <div class="gate-overlay" id="gate3"><p>⛔ Below 65% — Coach Linda: "Re-read the passage. The answers are all there — look for the time markers!"</p><button class="btn-or" onclick="resetComp()">🔄 Try Again</button></div>
+  <div class="story-box" style="margin-top:14px">
+    <div class="story-lbl">💭 How much did you understand?</div>
+    <div class="ubar" id="ubar3"></div>
+    <div id="ubar3fb" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;font-size:.8rem;font-weight:700"></div>
+  </div>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(2)">← Back</button><button class="btn-nxt" onclick="goSec(4)">Error Spotting →</button></div>
+</div>
+
+<!-- PART 4 -->
+<div class="sec" id="sec4">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">🔍</div><div><div class="card-title">Part 4 — Spot the Mistake</div><div class="card-sub">Activity 4 of 7 · Click the error · Choose the correction</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Writing:</strong> One error can cost you a band. Training your eye makes you a better writer AND speaker.</div>
+  <div class="gram-box"><h3>👩🏾‍🏫 Coach Linda says:</h3><p>"Click the word that is wrong in each sentence. Then choose the correct option from the menu. Think carefully — one mistake per sentence!"</p></div>
+  <div class="badge b-or">Click the error — then choose the correction</div>
+  <div id="errorSentences"></div>
+  <div class="score-box" id="errScore"><div class="score-num" id="errScoreNum">0/8</div><p style="font-size:.8rem;color:var(--mut);margin-top:4px">Error Spotting Score</p></div>
+  <div class="gate-overlay" id="gate4"><p>⛔ Below 70% — Coach Linda: "These errors are very common in TCF. Let's go again!"</p><button class="btn-or" onclick="resetErrors()">🔄 Try Again</button></div>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(3)">← Back</button><button class="btn-nxt" onclick="goSec(5)">Dialogue →</button></div>
+</div>
+
+<!-- PART 5 -->
+<div class="sec" id="sec5">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">🗣️</div><div><div class="card-title">Part 5 — Dialogue: Running Late!</div><div class="card-sub">Activity 5 of 7 · Listen · Mirror · Role play</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Speaking:</strong> Natural reactions under pressure = higher marks. Practise until it feels automatic.</div>
+  <div class="collapsible open" id="phraseCol">
+    <div class="collapsible-hdr" onclick="toggleCol('phraseCol')">🔑 Phrase Bank — Steal These for TCF! <span class="arr">▼</span></div>
+    <div class="collapsible-body"><div id="phraseBankGrid"></div></div>
+  </div>
+  <div class="collapsible" id="gramCol">
+    <div class="collapsible-hdr" onclick="toggleCol('gramCol')">🧩 Grammar Chunks — Just Copy These Patterns <span class="arr">▼</span></div>
+    <div class="collapsible-body">
+      <div class="gram-rule">
+        <strong style="color:var(--or)">Going somewhere:</strong><br>
+        Je vais <strong>au</strong> [masc] → <em>au marché</em> &nbsp;|&nbsp; Je vais <strong>à la</strong> [fem] → <em>à la gare</em><br>
+        Je vais <strong>à l'</strong> [vowel] → <em>à l'hôpital</em> &nbsp;|&nbsp; Je vais <strong>aux</strong> [plural] → <em>aux magasins</em><br><br>
+        <strong style="color:var(--or)">Must do:</strong> Je dois + [infinitive] + à + [time]
+      </div>
+      <div style="margin-top:8px;background:var(--orb);border-radius:var(--r-sm);padding:9px 12px;font-size:.81rem;color:var(--or);font-weight:600">👩🏾‍🏫 Coach Linda: "These patterns are your shortcut. Don't overthink — just use the chunk!"</div>
+    </div>
+  </div>
+  <div class="badge b-or">Step 1 — Listen to the Dialogue</div>
+  <div id="dialogueLines"></div>
+  <div class="badge b-or" style="margin-top:14px">Step 2 — Mirror Each Line</div>
+  <div class="info-box">🎤 For each line: Press 🔊 to hear it, say it aloud, then 🎤 Record it and compare!</div>
+  <div id="mirrorDialogue"></div>
+  <div class="badge b-or" style="margin-top:14px">Step 3 — Role Play (5 prompts)</div>
+  <div class="info-box">💬 Respond in French. Type OR record. Use the Phrase Bank above!</div>
+  <div id="rolePlay"></div>
+  <div class="aud-row" style="margin-top:10px"><button class="btn-gn" onclick="checkRolePlay()">✅ Check My Responses</button></div>
+  <div id="roleFb" style="display:none;margin-top:9px;padding:11px;border-radius:10px;font-size:.82rem;line-height:1.6"></div>
+  <div class="gate-overlay" id="gate5"><p>⛔ Below 65% — Coach Linda: "Use the chunks above and try once more!"</p><button class="btn-or" onclick="resetRolePlay()">🔄 Try Again</button></div>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(4)">← Back</button><button class="btn-nxt" onclick="goSec(6)">Timed Writing →</button></div>
+</div>
+
+<!-- PART 6 -->
+<div class="sec" id="sec6">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">⏱️</div><div><div class="card-title">Part 6 — Timed Writing: My Day in French</div><div class="card-sub">Activity 6 of 7 · 8 minutes · TCF-style writing task</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Writing:</strong> This task directly mirrors what you will see on exam day. 8 minutes. Go!</div>
+  <div class="write-prompt">
+    <div class="wp-lbl">Your Task — 8 Minutes</div>
+    <div class="wp-q">Write about YOUR day or an imaginary busy day. Include: ✅ 5+ times &nbsp;✅ 4+ places &nbsp;✅ 3+ phrase bank phrases &nbsp;✅ 2+ dates &nbsp;✅ Both <em>il est</em> and <em>à [time]</em> &nbsp;✅ 80+ words</div>
+  </div>
+  <div id="timer-display">8:00</div>
+  <button class="btn-or" id="timerStartBtn" style="display:flex;margin:0 auto 14px;justify-content:center" onclick="startWritingTimer()">▶ Commencer</button>
+  <textarea class="txt-inp" id="freeWriteTA" rows="10" placeholder="Écrivez ici en français... (Write here in French...)" disabled oninput="updateFreeWC()"></textarea>
+  <div class="wc-display" id="freeWC">0 words</div>
+  <div class="aud-row" style="margin-top:10px">
+    <button class="btn-gn" id="checkWriteBtn" onclick="checkFreeWrite()" style="display:none">✅ Check My Writing</button>
+    <button class="btn-or" id="hearWriteBtn" onclick="spk(document.getElementById('freeWriteTA').value,this)" style="display:none">🔊 Hear It</button>
+  </div>
+  <div id="writeChecklist" style="margin-top:10px;display:none"></div>
+  <div id="speakWriteSection" style="display:none;margin-top:14px">
+    <div class="gram-box"><h3>👩🏾‍🏫 Coach Linda says:</h3><p>"Now read what you wrote aloud. Speaking what you write is exactly what TCF examiners assess!"</p></div>
+    <div class="aud-row">
+      <button class="btn-rec" id="wr1" onclick="dRec('wr1','wp1')">🎤 Record My Writing</button>
+      <button class="btn-pb" id="wp1" onclick="pBlob('wp1')">▶️ Hear Me</button>
+    </div>
+  </div>
+  <div id="shareCard" style="display:none;background:linear-gradient(135deg,var(--bg3),#0f0f2e);border:1.5px solid var(--bdr);border-radius:var(--r);padding:18px;margin-top:14px;text-align:center">
+    <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-family:'Poppins',sans-serif">📸 Fast French Lab · Day 9</div>
+    <div id="shareWritingText" style="font-size:.85rem;color:var(--wh);line-height:1.8;font-family:'Lora',serif;text-align:left;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <span id="shareWCBadge" style="background:var(--orb);color:var(--or);border-radius:50px;padding:4px 12px;font-size:.7rem;font-weight:700;border:1px solid rgba(255,159,67,.3)">0 words</span>
+    </div>
+    <div style="font-size:.7rem;color:var(--mut);margin-top:8px">📸 Screenshot and send to the WhatsApp group!</div>
+  </div>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(5)">← Back</button><button class="btn-nxt" onclick="goSec(7)">Final Quiz →</button></div>
+</div>
+
+<!-- PART 7 -->
+<div class="sec" id="sec7">
+<div class="card">
+  <div class="card-hdr"><div class="card-ico">🏆</div><div><div class="card-title">Part 7 — Final Quiz & Reflection</div><div class="card-sub">Activity 7 of 7 · 10 questions · Reflect · Complete Day 9</div></div></div>
+  <div class="tcf-banner">📌 <strong>TCF Canada</strong> tests all four skills. This quiz checks your readiness across listening, reading, and writing.</div>
+  <div class="badge b-or">🏆 Final Quiz — 10 Questions</div>
+  <div id="finalQuiz"></div>
+  <div class="score-box" id="quizScore"><div class="score-num" id="quizScoreNum">0/10</div><p style="font-size:.8rem;color:var(--mut);margin-top:4px" id="quizScoreLbl">Final Quiz Score</p></div>
+  <div class="gate-overlay" id="gate7"><p>⛔ Below 70% — Coach Linda: "Let's review the key rules in Part 2 before completing."</p><button class="btn-or" onclick="resetFinalQuiz()">🔄 Try Again</button></div>
+  <div class="badge b-or" style="margin-top:18px">📝 Reflection — 3 Questions</div>
+  <div class="gram-box"><h3>👩🏾‍🏫 Coach Linda says:</h3><p>"Reflection is how knowledge becomes permanent. Take 3 minutes to answer honestly."</p></div>
+  <div id="reflectionQuestions"></div>
+  <div class="story-box" style="margin-top:14px">
+    <div class="story-lbl">How are you feeling NOW vs when you started?</div>
+    <div class="mood-row" id="moodEndRow" style="justify-content:flex-start;flex-wrap:wrap;gap:8px">
+      <button class="mood-btn" onclick="selMood('end',this,'😩')">😩</button>
+      <button class="mood-btn" onclick="selMood('end',this,'😐')">😐</button>
+      <button class="mood-btn" onclick="selMood('end',this,'🙂')">🙂</button>
+      <button class="mood-btn" onclick="selMood('end',this,'😄')">😄</button>
+      <button class="mood-btn" onclick="selMood('end',this,'🔥')">🔥</button>
+    </div>
+  </div>
+  <button class="btn-nxt" style="width:100%;justify-content:center;margin-top:14px;display:flex" onclick="completeLesson()">🎉 Complete Day 9!</button>
+</div>
+<div class="nav-bar"><button class="btn-prv" onclick="goSec(6)">← Back</button></div>
+</div>
+
+<!-- COMPLETION -->
+<div id="completionScreen">
+  <div class="comp-trophy">🎉</div>
+  <h1 class="comp-title">Félicitations!</h1>
+  <p style="color:var(--mut);margin-bottom:1.2rem;font-size:.88rem">Jour 9 terminé · Dire l'heure · All 7 parts complete</p>
+  <div class="stats-grid">
+    <div class="stat-card"><div style="font-size:1.4rem;margin-bottom:4px">⏱️</div><div class="stat-val" id="statTime">—</div><div class="stat-lbl">Time on Task</div></div>
+    <div class="stat-card"><div style="font-size:1.4rem;margin-bottom:4px">✍️</div><div class="stat-val" id="statWords">0</div><div class="stat-lbl">Words Written</div></div>
+    <div class="stat-card"><div style="font-size:1.4rem;margin-bottom:4px">🏆</div><div class="stat-val" id="statQuiz">—%</div><div class="stat-lbl">Quiz Score</div></div>
+    <div class="stat-card"><div style="font-size:1.4rem;margin-bottom:4px">🎤</div><div class="stat-val" id="statSpeak">0</div><div class="stat-lbl">Speaking Sessions</div></div>
+  </div>
+  <div style="background:var(--orb);border-radius:var(--r-sm);padding:11px 14px;font-size:.82rem;color:var(--or);font-weight:600;margin:10px 0">Mood: <span id="statMoodStart">—</span> → <span id="statMoodEnd">—</span></div>
+  <div id="savedConfirm" style="background:var(--gnb);border:1px solid var(--gn);border-radius:var(--r-sm);padding:10px;font-size:.8rem;color:var(--gn);font-weight:700;margin:10px 0;display:none">✅ Progress saved to Fast French Lab!</div>
+  <p style="font-size:.8rem;color:var(--mut);margin:10px 0">📸 Screenshot and send to the WhatsApp group!</p>
+  <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-top:14px;filter:blur(3px);opacity:.6;pointer-events:none">
+    <div style="font-size:.7rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:'Poppins',sans-serif">🔒 Day 10 — Coming Soon</div>
+    <div style="font-size:.9rem;color:var(--wh);font-weight:700">Shopping & Prices in French</div>
+    <div style="font-size:.78rem;color:var(--mut);margin-top:4px">Les achats · Combien ça coûte ? · À la boulangerie</div>
+  </div>
+  <div style="margin-top:14px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;font-size:.82rem;color:var(--wh);line-height:1.6">
+    <span style="color:var(--or);font-weight:700;font-family:'Poppins',sans-serif">👩🏾‍🏫 Coach Linda:</span> "You showed up today. That's the difference between people who pass and people who don't. See you for Day 10!"
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<!-- COACH + DICT -->
+<div class="coach-wrap">
+  <div class="coach-msg" id="coachMsg"><div class="coach-name">Coach Linda</div><span id="coachMsgText"></span></div>
+  <div class="coach-av" onclick="toggleCoach()">👩🏾‍🏫</div>
+</div>
+<button id="dictFab" onclick="openDict()" title="French Dictionary">📖</button>
+<div id="dictPanel" style="position:fixed;bottom:0;left:0;right:0;z-index:600;background:var(--bg2);border-radius:22px 22px 0 0;padding:18px 16px 30px;box-shadow:0 -8px 40px rgba(0,0,0,.5);transform:translateY(100%);transition:transform .32s;max-height:75vh;overflow-y:auto;border-top:1px solid var(--bdr)">
+  <button id="dpClose" onclick="closeDict()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--mut)">×</button>
+  <div class="dp-handle"></div>
+  <h3 style="font-size:.9rem;font-weight:700;color:var(--wh);margin-bottom:4px">📖 French Dictionary</h3>
+  <p class="dpNote">Type any French word — opens in a popup so you never leave your lesson.</p>
+  <div class="dp-row">
+    <input type="text" id="dpWord" placeholder="Type a French word..." autocomplete="off" onkeydown="if(event.key==='Enter')dpLookup()">
+    <button id="dpGo" onclick="dpLookup()">Look up →</button>
+  </div>
+  <div id="dpLinks"></div>
+</div>
+
+<script>
+// ── CONFIG ──
+const AT_TOKEN='patUosqmnatcmyQ9b.122d09bdf7cce0da1444baf44f88eb6ddb41aa27312a1ec65ca5cd700c51a2e9';
+const AT_BASE='appYOYauNLO2qcSaT';
+const AT_LESSONS='Lesson Submissions';
+const AT_SPEAKING='Speaking Progress';
+const AT_REFLECT='Reflection Journal';
+
+// ── STATE ──
+let sName='',sEmail='',moodStart='',moodEnd='';
+let lessonStart=null,lessonSecs=0,timerInt=null;
+let writingSecs=480,writingStarted=false,writingTimerInt=null;
+let curSec=1,blobs={},mediaRecs={},cTimer=null;
+let copyScore=0,listenScoreVal=0,compScoreVal=0,errScoreVal=0,quizScoreVal=0;
+let listenDone={},compDone={},errDone={},quizDone={};
+let freeWriteText='',reflAnswers={r1:'',r2:'',r3:''};
+let speakSessions=0;
+
+// ── DATA ──
+const COPY_TEXT="En France, on utilise l'horloge de vingt-quatre heures. Par exemple, quatorze heures, c'est deux heures de l'après-midi. Il est important de connaître l'heure pour réussir le TCF Canada. Je dois être à l'aéroport à dix-neuf heures trente.";
+
+const CLOZE=[
+  {before:"En France, on utilise l'horloge de ",blank:"vingt-quatre",after:" heures.",hint:"the 24-hour system (number)"},
+  {before:"Par exemple, ",blank:"quatorze",after:" heures, c'est deux heures.",hint:"14 in French"},
+  {before:"Il est ",blank:"important",after:" de connaître l'heure.",hint:"means 'important'"},
+  {before:"Je dois être à l'aéroport à dix-",blank:"neuf",after:" heures trente.",hint:"19 = dix-..."},
+  {before:"c'est deux heures de l'",blank:"après-midi",after:".",hint:"afternoon"}
+];
+
+const CLOCK_CHALLENGES=[
+  {h:3,m:0,inf:"Il est trois heures.",form:"Il est quinze heures."},
+  {h:8,m:30,inf:"Il est huit heures et demie.",form:"Il est vingt heures trente."},
+  {h:12,m:15,inf:"Il est midi et quart.",form:"Il est douze heures quinze."},
+  {h:6,m:45,inf:"Il est sept heures moins le quart.",form:"Il est dix-neuf heures quarante-cinq."},
+  {h:9,m:0,inf:"Il est neuf heures du matin.",form:"Il est vingt et une heures."}
+];
+
+const LISTEN_TIMES=[
+  {spoken:"Il est neuf heures et demie.",opts:["9:30","9:15","10:30"],ans:0},
+  {spoken:"Il est quatorze heures.",opts:["4:00 PM","2:00 PM","12:00 PM"],ans:1},
+  {spoken:"Il est vingt heures quinze.",opts:["8:15 PM","8:45 PM","7:15 PM"],ans:0},
+  {spoken:"Il est midi.",opts:["12:00 midnight","12:00 noon","1:00 PM"],ans:1},
+  {spoken:"Il est six heures moins le quart.",opts:["5:45","6:15","6:45"],ans:0},
+  {spoken:"Il est dix-neuf heures trente.",opts:["7:30 PM","9:30 PM","7:30 AM"],ans:0},
+  {spoken:"Il est trois heures et quart.",opts:["2:45","3:15","3:45"],ans:1},
+  {spoken:"Il est minuit.",opts:["Noon","Midnight","11 PM"],ans:1},
+  {spoken:"Il est seize heures.",opts:["6 PM","4 PM","16:30"],ans:1},
+  {spoken:"Il est vingt et une heures.",opts:["9 PM","10 PM","11 PM"],ans:0}
+];
+
+const PLANNING_TEXT="Bonjour! Je m'appelle Omar. Aujourd'hui, j'ai une journée très chargée. À sept heures, je prends mon petit déjeuner. À neuf heures trente, je vais à la bibliothèque pour étudier. À onze heures, j'ai un rendez-vous à la gare. Je mange à treize heures à la maison. À quinze heures, je vais à la boulangerie. À seize heures trente, je dois aller au bureau de poste. Le soir, à dix-neuf heures, je vais au café avec mes amis. Enfin, je rentre à la maison à vingt et une heures. Bonne nuit!";
+
+const PLANNING_ANSWERS=["sept heures","neuf heures trente","onze heures","treize heures","quinze heures","seize heures trente","dix-neuf heures","vingt et une heures"];
+
+const SOPHIE_TEXT="Sophie est une femme très occupée. Aujourd'hui, c'est le mardi quatorze mars. À sept heures, elle se lève. À huit heures trente, elle emmène sa fille à l'école. Elle a un rendez-vous à la pharmacie à neuf heures quinze. À onze heures, elle va à la mairie. À quelle heure tu reviens, demande son mari Omar. Je vais revenir à treize heures, dit Sophie. Mais d'abord, je vais au supermarché avant midi. À quinze heures trente, elle récupère sa fille. À dix-sept heures, elle a un cours de français. À vingt heures, toute la famille mange ensemble. Sophie dit à vingt-deux heures: Une journée bien chargée, mais bien réussie!";
+
+const COMP_QS=[
+  {type:'mcq',q:"What time does Sophie take her daughter to school?",opts:["7:00","8:30","9:15","11:00"],ans:1,fb:"✅ 'À huit heures trente' = 8:30. Look for the phrase 'emmène sa fille à l'école'."},
+  {type:'mcq',q:"Where does Sophie go at 11:00?",opts:["La pharmacie","Le supermarché","La mairie","L'école"],ans:2,fb:"✅ 'À onze heures, elle va à la mairie' — the town hall to sign documents."},
+  {type:'mcq',q:"What time does the whole family eat together?",opts:["13:00","17:00","19:00","20:00"],ans:3,fb:"✅ 'À vingt heures, toute la famille mange ensemble.' = 8pm = 20:00."},
+  {type:'write',q:"What does Sophie do at 9:15? Write a complete French sentence.",scaffold:"À neuf heures quinze, Sophie...",ans:"pharmacie",hint:"She has a 'rendez-vous' somewhere."},
+  {type:'write',q:"What is Sophie doing at 17:00? Write in French.",scaffold:"À dix-sept heures, Sophie...",ans:"cours",hint:"She has a class..."},
+  {type:'write',q:"How is Sophie's day described? Write one French sentence.",scaffold:"La journée de Sophie est...",ans:"chargée",hint:"Look at the title and last line."},
+  {type:'tf',q:"Sophie goes to the supermarket AFTER picking up her daughter at 15:30.",correct:false,fb:"❌ False! Sophie says she will go 'avant midi' (before noon) — before her daughter's pickup at 15:30."},
+  {type:'tf',q:"Omar is Sophie's husband.",correct:true,fb:"✅ True — Omar asks 'À quelle heure tu reviens?' in a domestic context, confirming he is her partner."}
+];
+
+const ERROR_SENTENCES=[
+  {parts:["Il est à trois ","heure","."],errIdx:1,opts:["heures","heure","l'heure"],ans:0,fb:"'Heure' must be plural when the number > 1. → trois <strong>heures</strong>."},
+  {parts:["Je vais ","au"," boulangerie à neuf heures."],errIdx:1,opts:["à la","au","de la"],ans:0,fb:"'Boulangerie' is feminine → à <strong>la</strong> boulangerie. 'Au' = à+le (masculine)."},
+  {parts:["Elle doit être ","au"," hôpital à midi."],errIdx:1,opts:["à l'","au","à le"],ans:0,fb:"'Hôpital' starts with a vowel → à <strong>l'</strong>hôpital. 'Au' is for consonant-start."},
+  {parts:["Nous arrivons à la gare à vingt ","heure"," trente."],errIdx:1,opts:["heures","heure","heurs"],ans:0,fb:"Always <strong>heures</strong> (plural) for time expressions, except midi/minuit."},
+  {parts:["Je vais ","au"," pharmacie chercher des médicaments."],errIdx:1,opts:["à la","au","aux"],ans:0,fb:"'Pharmacie' is feminine → à <strong>la</strong> pharmacie."},
+  {parts:["Il est ","trois heures et demi","."],errIdx:1,opts:["trois heures et demie","trois heures demi","trois et demie"],ans:0,fb:"When 'demie' follows a feminine noun (l'heure), it takes -e. → et <strong>demie</strong>."},
+  {parts:["Elle va ","aux"," supermarché faire ses courses."],errIdx:1,opts:["au","aux","à le"],ans:0,fb:"'Supermarché' is masculine singular → <strong>au</strong> supermarché. 'Aux' is for plurals."},
+  {parts:["Je dois aller ","à le"," bureau de poste."],errIdx:1,opts:["au","à le","à la"],ans:0,fb:"'À + le' always contracts to <strong>au</strong> in French — this is a non-negotiable rule!"}
+];
+
+const DIALOGUE=[
+  {speaker:"Paul",fr:"Amina, tu as l'air très stressée aujourd'hui !",en:"Amina, you look very stressed today!"},
+  {speaker:"Amina",fr:"Je suis très occupée aujourd'hui ! J'ai beaucoup de choses à faire.",en:"I am very busy today! I have a lot to do."},
+  {speaker:"Paul",fr:"Qu'est-ce que tu dois faire ?",en:"What do you have to do?"},
+  {speaker:"Amina",fr:"Je dois aller à la mairie à neuf heures trente. Ensuite, je vais à l'hôpital avant midi.",en:"I have to go to the town hall at 9:30. Then, I'm going to the hospital before noon."},
+  {speaker:"Paul",fr:"Et cet après-midi ?",en:"And this afternoon?"},
+  {speaker:"Amina",fr:"À quatorze heures, je vais au supermarché. À seize heures, je dois chercher les enfants à l'école.",en:"At 2pm, I'm going to the supermarket. At 4pm, I have to pick up the children from school."},
+  {speaker:"Paul",fr:"Tu es en retard ! Il faut que tu partes maintenant !",en:"You're late! You need to leave now!"},
+  {speaker:"Amina",fr:"Je sais, je n'ai pas le temps ! Je suis très fatiguée. À ce soir !",en:"I know, I don't have time! I'm very tired. See you tonight!"}
+];
+
+const PHRASES=[
+  {fr:"Je suis très occupé(e)",en:"I am very busy"},
+  {fr:"J'ai beaucoup de choses à faire",en:"I have a lot to do"},
+  {fr:"Je suis en retard",en:"I am late"},
+  {fr:"Je dois aller à...",en:"I have to go to..."},
+  {fr:"Je vais à... à... heures",en:"I'm going to... at... o'clock"},
+  {fr:"Je suis très fatigué(e)",en:"I am very tired"},
+  {fr:"Je suis assez détendu(e)",en:"I am quite relaxed"},
+  {fr:"À quelle heure ?",en:"At what time?"},
+  {fr:"Il faut que je parte",en:"I need to leave"},
+  {fr:"Je n'ai pas le temps",en:"I don't have time"}
+];
+
+const ROLE_PROMPTS=[
+  {en:"Tell your friend you are very busy and must be at the train station at 16:30.",check:/occupé|retard|gare|seize|16/i},
+  {en:"Say you are going to the pharmacy before noon.",check:/pharmacie|midi|avant|vais/i},
+  {en:"Say you don't have time and you are late.",check:/temps|retard/i},
+  {en:"Tell someone you must pick up the children from school at 17:00.",check:/école|enfants|dix-sept|17/i},
+  {en:"Say you are tired but you have a lot to do today.",check:/fatigué|beaucoup|choses/i}
+];
+
+const FINAL_QUIZ=[
+  {q:"How do you say 14:30 formally in French?",opts:["Il est deux heures et demie","Il est quatorze heures trente","Il est deux heures trente","Il est quatorze heures"],ans:1},
+  {q:"Fill the blank: Je vais ___ hôpital.",opts:["au","à l'","à la","à le"],ans:1},
+  {q:"Which is correct for 3:45?",opts:["Il est trois heures quarante-cinq","Il est quatre heures moins le quart","Both are correct","Il est trois heures et quart"],ans:2},
+  {q:"'Au' is used before which type of word?",opts:["Feminine nouns","Plural nouns","Masculine singular nouns","Nouns starting with vowels"],ans:2},
+  {q:"Spot the error: 'Il est six heure du soir.'",opts:["Il est","six","heure","soir"],ans:2},
+  {q:"How do you say midnight in French?",opts:["midi","minuit","nuit","mi-nuit"],ans:1},
+  {q:"Which phrase means 'I am running late'?",opts:["Je suis occupé","Je suis en retard","Je n'ai pas le temps","Je dois partir"],ans:1},
+  {q:"What does 'Il faut que je parte' mean?",opts:["I left already","I need to leave","I am leaving now","I will leave later"],ans:1},
+  {q:"True or False: You say 'le hôpital' in French.",opts:["True — masculine","False — l'hôpital (vowel rule)","True — it takes le","False — it is feminine"],ans:1},
+  {type:'open',q:"Write ONE sentence about tomorrow: a time + a place.",placeholder:"Ex: Demain, je vais à la bibliothèque à dix heures."}
+];
+
+// ── MOOD ──
+function selMood(which,btn,emoji){
+  const id=which==='start'?'moodStartRow':'moodEndRow';
+  document.getElementById(id).querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if(which==='start')moodStart=emoji;else moodEnd=emoji;
+}
+
+// ── START ──
+function startLesson(){
+  const n=document.getElementById('wName').value.trim();
+  const e=document.getElementById('wEmail').value.trim();
+  let ok=true;
+  if(!n){document.getElementById('wName').classList.add('werr');document.getElementById('wNameErr').style.display='block';ok=false;}
+  else{document.getElementById('wName').classList.remove('werr');document.getElementById('wNameErr').style.display='none';}
+  if(!e||!e.includes('@')){document.getElementById('wEmail').classList.add('werr');document.getElementById('wEmailErr').style.display='block';ok=false;}
+  else{document.getElementById('wEmail').classList.remove('werr');document.getElementById('wEmailErr').style.display='none';}
+  if(!ok)return;
+  sName=n;sEmail=e;lessonStart=Date.now();
+  document.getElementById('wModal').style.display='none';
+  document.getElementById('dictFab').style.display='flex';
+  startLessonTimer();buildUI();
+  showCoach('Bienvenue, '+sName.split(' ')[0]+'! 🎉 Day 9 — today you master telling time in French. Let\'s go!',7000);
+}
+
+function startLessonTimer(){
+  timerInt=setInterval(()=>{lessonSecs++;const m=Math.floor(lessonSecs/60),s=lessonSecs%60;document.getElementById('lessonTimer').textContent=m+':'+(s<10?'0':'')+s;},1000);
+}
+
+// ── SPEECH ──
+function getVoice(){const vs=window.speechSynthesis.getVoices();return vs.find(v=>v.lang==='fr-FR')||vs.find(v=>v.lang.startsWith('fr'))||null;}
+function spk(t,btn,rate){
+  if(!t)return;window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);const v=getVoice();if(v)u.voice=v;
+  u.lang='fr-FR';u.rate=rate||0.85;u.pitch=1.02;
+  if(btn&&btn.classList){const orig=btn.textContent;btn.textContent='⏸ Playing...';u.onend=()=>btn.textContent=orig;}
+  window.speechSynthesis.speak(u);
+}
+
+// ── RECORDING ──
+async function dRec(recId,pbId){
+  const btn=document.getElementById(recId);if(!btn)return;
+  if(mediaRecs[recId]&&mediaRecs[recId].state==='recording'){mediaRecs[recId].stop();return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});let chunks=[];
+    const mr=new MediaRecorder(stream);mediaRecs[recId]=mr;
+    mr.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    mr.onstop=()=>{
+      blobs[pbId]=new Blob(chunks,{type:'audio/webm'});
+      stream.getTracks().forEach(t=>t.stop());
+      btn.classList.remove('on');btn.textContent=btn.textContent.replace('⏹ Stop','🎤 Record Again');
+      const pb=document.getElementById(pbId);if(pb)pb.classList.add('show');
+      speakSessions++;showCoach('✅ Recorded! Press ▶️ to hear yourself. Match the French rhythm!',4000);
+    };
+    mr.start();btn.classList.add('on');btn.textContent='⏹ Stop Recording';
+    showCoach('🎤 Recording... Speak clearly and confidently.',0);
+  }catch(e){showCoach('⚠️ Microphone not available. Check browser permissions.',4000);}
+}
+function pBlob(pbId){if(!blobs[pbId])return;new Audio(URL.createObjectURL(blobs[pbId])).play();showCoach('👂 Compare your voice to the model. Every repetition builds fluency!',4000);}
+
+// ── NAV ──
+function goSec(n){
+  document.getElementById('sec'+curSec).classList.remove('show');
+  curSec=n;document.getElementById('sec'+n).classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});updDots();updProg();
+  const msgs={1:"✍️ Warm up! Copy carefully — every accent matters on TCF.",2:"🕐 Let's master il est and the 24-hour clock!",3:"📖 Read, listen, and extract information — just like real TCF tasks.",4:"🔍 Train your error-spotting eye. One mistake = one band lost!",5:"🗣️ Dialogue! Natural, fast responses are what TCF rewards.",6:"⏱️ 8-minute timed write — this IS the TCF writing format!",7:"🏆 Final quiz! Show what you know."};
+  if(msgs[n])showCoach(msgs[n],6000);
+}
+function buildDots(){document.getElementById('dotsWrap').innerHTML=[1,2,3,4,5,6,7].map(i=>`<div class="dot${i===1?' active':''}" id="dot${i}" onclick="goSec(${i})">${i}</div>`).join('');}
+function updDots(){for(let i=1;i<=7;i++){const d=document.getElementById('dot'+i);if(d)d.className='dot'+(i<curSec?' done':i===curSec?' active':'');}}
+function buildProgSegs(){document.getElementById('progSegs').innerHTML=[1,2,3,4,5,6,7].map(i=>`<div class="prog-seg" id="ps${i}"></div>`).join('');}
+function updProg(){for(let i=1;i<=7;i++){const s=document.getElementById('ps'+i);if(s)s.className='prog-seg'+(i<curSec?' done':i===curSec?' active':'');}}
+
+// ── COPY ──
+function checkCopy(){
+  const val=document.getElementById('copyTA').value;
+  let correct=0;
+  for(let i=0;i<Math.min(val.length,COPY_TEXT.length);i++){if(val[i]===COPY_TEXT[i])correct++;}
+  copyScore=Math.round((correct/COPY_TEXT.length)*100);
+  const fb=document.getElementById('copyFb');fb.style.display='block';
+  if(copyScore>=90){fb.style.cssText='background:rgba(46,204,113,.12);color:#2ECC71';fb.textContent='✅ Excellent! '+copyScore+'% accuracy. Your hands know French now!';}
+  else if(copyScore>=60){fb.style.cssText='background:rgba(255,159,67,.1);color:var(--or)';fb.textContent='✅ Good — '+copyScore+'%. Check your accents (é, è, à) carefully!';}
+  else{document.getElementById('gate1').classList.add('show');fb.style.cssText='background:rgba(231,76,60,.12);color:var(--rd)';fb.textContent='⚠️ '+copyScore+'% — below 60%. Focus on accents and punctuation.';}
+  if(copyScore>=90)confetti();
+  showCoach(copyScore>=60?'💪 Accuracy on paper = accuracy on TCF!':'💡 Every accent is a mark. Try again!',4500);
+}
+function resetCloze(){CLOZE.forEach((_,i)=>{const inp=document.getElementById('cl'+i);if(inp){inp.value='';inp.className='fill-inp';}});document.getElementById('clozeFb').style.display='none';}
+function renderCloze(){
+  document.getElementById('clozeWrap').innerHTML=CLOZE.map((c,i)=>`
+    <div style="background:var(--bg3);border-radius:var(--r-sm);padding:13px;margin-bottom:9px;border:1px solid var(--bdr);font-size:.9rem;color:var(--wh);line-height:2.2">
+      <div style="font-size:.62rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-family:'Poppins',sans-serif">Blank ${i+1} — hint: ${c.hint}</div>
+      ${c.before}<input class="fill-inp" id="cl${i}" placeholder="?" autocomplete="off" autocorrect="off" spellcheck="false">${c.after}
+    </div>`).join('');
+}
+function checkCloze(){
+  let ok=0;
+  CLOZE.forEach((c,i)=>{
+    const v=(document.getElementById('cl'+i).value||'').trim().toLowerCase();
+    const good=v.includes(c.blank.toLowerCase());
+    document.getElementById('cl'+i).classList.toggle('ok',good);
+    document.getElementById('cl'+i).classList.toggle('bad',!good);
+    if(good)ok++;
+  });
+  const pct=Math.round((ok/CLOZE.length)*100);
+  const fb=document.getElementById('clozeFb');fb.style.display='block';
+  fb.style.cssText=pct>=60?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(255,159,67,.1);color:var(--or)';
+  fb.textContent=ok+'/'+CLOZE.length+' correct ('+pct+'%). '+(pct<60?'Look at the paragraph above!':'Excellent memory!');
+  if(pct===100)confetti();
+}
+
+// ── CLOCK ──
+function renderClockChallenges(){
+  document.getElementById('clockChallenges').innerHTML=CLOCK_CHALLENGES.map((c,i)=>`
+    <div class="clock-challenge">
+      <div class="clock-time-display">${String(c.h).padStart(2,'0')}:${String(c.m).padStart(2,'0')}</div>
+      <div style="font-size:.8rem;color:var(--mut);margin-bottom:10px">Write this time in BOTH formats:</div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--or);margin-bottom:4px">Informal (spoken):</div>
+        <input class="txt-inp" id="cc${i}a" placeholder="Il est..." autocorrect="off" style="min-height:38px;padding:7px 11px">
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--or);margin-bottom:4px">Formal 24h:</div>
+        <input class="txt-inp" id="cc${i}b" placeholder="Il est... (24h)" autocorrect="off" style="min-height:38px;padding:7px 11px">
+      </div>
+      <div class="aud-row" style="gap:6px;justify-content:center">
+        <button class="btn-out" style="min-height:36px;font-size:.76rem" onclick="spk('${c.inf}',this)">🔊 Informal</button>
+        <button class="btn-out" style="min-height:36px;font-size:.76rem" onclick="spk('${c.form}',this)">🔊 Formal</button>
+        <button class="btn-gn" style="min-height:36px;padding:0 14px;font-size:.76rem" onclick="checkClock(${i})">✅ Check</button>
+      </div>
+      <div id="ccfb${i}" style="display:none;margin-top:7px;padding:8px 11px;border-radius:8px;font-size:.8rem;font-weight:700"></div>
+    </div>`).join('');
+}
+function checkClock(i){
+  const c=CLOCK_CHALLENGES[i];
+  const a=(document.getElementById('cc'+i+'a').value||'').toLowerCase();
+  const b=(document.getElementById('cc'+i+'b').value||'').toLowerCase();
+  const infKey=c.inf.toLowerCase().replace('il est ','').replace('.','').trim();
+  const fKey=c.form.toLowerCase().replace('il est ','').replace('.','').trim();
+  const aok=a.includes(infKey.split(' ')[0]);
+  const bok=b.includes(fKey.split(' ')[0]);
+  const fb=document.getElementById('ccfb'+i);fb.style.display='block';
+  fb.style.cssText=(aok&&bok)?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(255,159,67,.1);color:var(--or)';
+  fb.textContent=(aok&&bok?'✅ Both correct! ':'💡 ')+'Informal: '+c.inf+' | Formal: '+c.form;
+  if(aok&&bok)confetti();
+}
+
+// ── LISTENING ──
+function renderListening(){
+  document.getElementById('listeningQuiz').innerHTML=LISTEN_TIMES.map((q,i)=>`
+    <div class="mcq-wrap">
+      <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;font-family:'Poppins',sans-serif">Question ${i+1}</div>
+      <div class="aud-row" style="margin-bottom:9px"><button class="btn-or" style="min-height:38px;font-size:.78rem" onclick="spk('${q.spoken}',this)">▶ Play Clip ${i+1}</button></div>
+      ${q.opts.map((o,j)=>`<div class="mcq-opt" id="lo${i}_${j}" onclick="selListen(${i},${j})"><div style="width:22px;height:22px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:800;flex-shrink:0">${String.fromCharCode(65+j)}</div>${o}</div>`).join('')}
+      <div class="mcq-fb" id="lf${i}"></div>
+    </div>`).join('');
+  document.getElementById('listenSubmitBtn').style.display='flex';
+}
+function selListen(qi,oi){
+  if(listenDone[qi]!==undefined)return;listenDone[qi]=oi;
+  const ok=oi===LISTEN_TIMES[qi].ans;
+  LISTEN_TIMES[qi].opts.forEach((_,j)=>{const el=document.getElementById('lo'+qi+'_'+j);if(el){el.classList.add('dis');if(j===LISTEN_TIMES[qi].ans)el.classList.add('co');else if(j===oi&&!ok)el.classList.add('wo');}});
+  const fb=document.getElementById('lf'+qi);fb.className='mcq-fb show';
+  fb.style.cssText=ok?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(231,76,60,.12);color:#E74C3C';
+  fb.textContent=ok?'✅ Correct! '+LISTEN_TIMES[qi].spoken:'❌ Correct: '+LISTEN_TIMES[qi].spoken+' = '+LISTEN_TIMES[qi].opts[LISTEN_TIMES[qi].ans];
+  if(ok)confetti();
+}
+function checkListening(){
+  const total=LISTEN_TIMES.filter((_,i)=>listenDone[i]===LISTEN_TIMES[i].ans).length;
+  listenScoreVal=Math.round((total/LISTEN_TIMES.length)*100);
+  document.getElementById('listenScoreNum').textContent=total+'/'+LISTEN_TIMES.length;
+  document.getElementById('listenScore').classList.add('show');
+  if(listenScoreVal<70){document.getElementById('gate2').classList.add('show');showCoach('💡 Each replay sharpens your ear. Try again!',5000);}
+  else{showCoach('🎉 Listening: '+listenScoreVal+'%! Your ear is getting sharper!',5000);if(listenScoreVal>=90)confetti();}
+}
+function retryListening(){document.getElementById('gate2').classList.remove('show');listenDone={};renderListening();document.getElementById('listenScore').classList.remove('show');}
+
+// ── PLANNING ──
+let planningVisible=false;
+function togglePlanning(){planningVisible=!planningVisible;const el=document.getElementById('planningText');el.style.display=planningVisible?'block':'none';el.textContent=PLANNING_TEXT;}
+function renderPlanning(){
+  document.getElementById('planningInputs').innerHTML=PLANNING_ANSWERS.map((_,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:.75rem;font-weight:700;color:var(--or);min-width:18px;font-family:'Poppins',sans-serif">${i+1}.</span>
+      <input class="txt-inp" id="pl${i}" placeholder="Write the time in French words..." autocorrect="off" style="min-height:38px;padding:7px 11px">
+    </div>`).join('');
+}
+function checkPlanning(){
+  let ok=0;
+  PLANNING_ANSWERS.forEach((a,i)=>{
+    const v=(document.getElementById('pl'+i).value||'').trim().toLowerCase();
+    const good=v.includes(a.toLowerCase())||a.toLowerCase().includes(v.split(' ').slice(0,2).join(' '));
+    const inp=document.getElementById('pl'+i);inp.classList.toggle('ok',good);inp.classList.toggle('bad',!good);if(good)ok++;
+  });
+  const pct=Math.round((ok/PLANNING_ANSWERS.length)*100);
+  const fb=document.getElementById('planningFb');fb.style.display='block';
+  fb.style.cssText=pct>=60?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(255,159,67,.1);color:var(--or)';
+  fb.textContent=ok+'/'+PLANNING_ANSWERS.length+' times correct. '+(pct<60?'Show Text and listen again!':'Excellent listening!');
+}
+function resetPlanning(){PLANNING_ANSWERS.forEach((_,i)=>{const inp=document.getElementById('pl'+i);if(inp){inp.value='';inp.className='txt-inp';}});document.getElementById('planningFb').style.display='none';}
+
+// ── COMPREHENSION ──
+function renderComp(){
+  document.getElementById('compQuestions').innerHTML=COMP_QS.map((q,i)=>{
+    if(q.type==='mcq')return`<div class="mcq-wrap"><div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:7px;font-family:'Poppins',sans-serif">Q${i+1}</div><div class="mcq-q">${q.q}</div>${q.opts.map((o,j)=>`<div class="mcq-opt" id="cm${i}_${j}" onclick="selComp(${i},${j})"><div style="width:22px;height:22px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:800;flex-shrink:0">${String.fromCharCode(65+j)}</div>${o}</div>`).join('')}<div class="mcq-fb" id="cf${i}"></div></div>`;
+    if(q.type==='write')return`<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:7px;font-family:'Poppins',sans-serif">Q${i+1} — Write in French</div><div class="mcq-q">${q.q}</div><div style="font-size:.73rem;color:var(--or);font-style:italic;margin-bottom:7px;background:var(--orb);padding:5px 9px;border-radius:6px">${q.scaffold}</div><textarea class="txt-inp" id="cw${i}" rows="2" placeholder="Write your answer..."></textarea><div id="cwfb${i}" style="display:none;margin-top:7px;font-size:.78rem;font-weight:600"></div></div>`;
+    if(q.type==='tf')return`<div class="mcq-wrap"><div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:7px;font-family:'Poppins',sans-serif">Q${i+1} — True or False?</div><div class="mcq-q">${q.q}</div><div class="mcq-opt" id="ct${i}_t" onclick="selCompTF(${i},true)">✅ True</div><div class="mcq-opt" id="ct${i}_f" onclick="selCompTF(${i},false)">❌ False</div><div class="mcq-fb" id="ctf${i}"></div></div>`;
+    return'';
+  }).join('');
+}
+function selComp(qi,oi){
+  if(compDone['m'+qi]!==undefined)return;compDone['m'+qi]=oi;
+  const ok=oi===COMP_QS[qi].ans;
+  COMP_QS[qi].opts.forEach((_,j)=>{const el=document.getElementById('cm'+qi+'_'+j);if(el){el.classList.add('dis');if(j===COMP_QS[qi].ans)el.classList.add('co');else if(j===oi&&!ok)el.classList.add('wo');}});
+  const fb=document.getElementById('cf'+qi);fb.className='mcq-fb show';
+  fb.style.cssText=ok?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(155,89,182,.12);color:#C39BD3';
+  fb.innerHTML=(ok?'':'💡 ')+COMP_QS[qi].fb;if(ok)confetti();
+}
+function selCompTF(qi,ans){
+  if(compDone['t'+qi]!==undefined)return;compDone['t'+qi]=ans;
+  const ok=ans===COMP_QS[qi].correct;
+  const tEl=document.getElementById('ct'+qi+'_t'),fEl=document.getElementById('ct'+qi+'_f');
+  tEl.classList.add('dis');fEl.classList.add('dis');
+  (COMP_QS[qi].correct?tEl:fEl).classList.add('co');if(!ok)(ans?tEl:fEl).classList.add('wo');
+  const fb=document.getElementById('ctf'+qi);fb.className='mcq-fb show';
+  fb.style.cssText=ok?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(155,89,182,.12);color:#C39BD3';
+  fb.innerHTML=COMP_QS[qi].fb;if(ok)confetti();
+}
+function checkComp(){
+  let total=0;
+  COMP_QS.forEach((q,i)=>{
+    if(q.type==='mcq'&&compDone['m'+i]===q.ans)total++;
+    if(q.type==='tf'&&compDone['t'+i]===q.correct)total++;
+    if(q.type==='write'){const v=(document.getElementById('cw'+i)?.value||'').toLowerCase();const ok=v.includes(q.ans.toLowerCase());const fb=document.getElementById('cwfb'+i);if(fb){fb.style.display='block';fb.style.color=ok?'#2ECC71':'var(--or)';fb.textContent=ok?'✅ Key word found!':'💡 Include: "'+q.ans+'"';}if(ok)total++;}
+  });
+  compScoreVal=Math.round((total/COMP_QS.length)*100);
+  document.getElementById('compScoreNum').textContent=total+'/'+COMP_QS.length;
+  document.getElementById('compScore').classList.add('show');
+  if(compScoreVal<65){document.getElementById('gate3').classList.add('show');showCoach('💡 Re-read. The answers are all in the passage!',5000);}
+  else{showCoach('📖 Comprehension: '+compScoreVal+'%!',4500);if(compScoreVal>=80)confetti();}
+}
+function resetComp(){compDone={};renderComp();document.getElementById('compScore').classList.remove('show');document.getElementById('gate3').classList.remove('show');}
+function renderUbar3(){
+  const opts=['😕 Not much','🤔 A little','🙂 Most','🔥 All of it!'];
+  document.getElementById('ubar3').innerHTML=opts.map((o,i)=>`<button class="ubtn" id="u3b${i}" onclick="selU3(${i+1},${i})">${o}</button>`).join('');
+}
+function selU3(v,idx){
+  document.querySelectorAll('#ubar3 .ubtn').forEach(b=>b.classList.remove('sel'));document.getElementById('u3b'+idx).classList.add('sel');
+  const m={1:'Normal at A2! Listen again.',2:'Getting there!',3:'🎉 Excellent!',4:'🏆 PARFAIT!'};
+  const fb=document.getElementById('ubar3fb');fb.style.display='block';fb.style.cssText=v>=3?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(255,159,67,.1);color:var(--or)';fb.textContent=m[v];if(v===4)confetti();
+}
+
+// ── ERRORS ──
+function renderErrors(){
+  document.getElementById('errorSentences').innerHTML=ERROR_SENTENCES.map((s,i)=>`
+    <div class="err-sent" id="es${i}">
+      <div class="err-num">Sentence ${i+1}</div>
+      <div class="err-text">${s.parts.map((part,j)=>j===s.errIdx?`<span class="err-word" id="ew${i}" onclick="selectErr(${i})">${part}</span>`:part).join('')}</div>
+      <div class="err-dropdown" id="ed${i}">${s.opts.map((o,j)=>`<button class="err-choice" onclick="checkErr(${i},${j})">${o}</button>`).join('')}</div>
+      <div class="err-fb" id="ef${i}"></div>
+    </div>`).join('');
+}
+function selectErr(i){if(errDone[i]!==undefined)return;document.getElementById('ew'+i).classList.add('selected');document.getElementById('ed'+i).classList.add('show');}
+function checkErr(i,j){
+  if(errDone[i]!==undefined)return;errDone[i]=j;
+  const ok=j===ERROR_SENTENCES[i].ans;
+  document.getElementById('ew'+i).classList.remove('selected');document.getElementById('ew'+i).classList.add(ok?'correct':'wrong');
+  document.getElementById('ed'+i).classList.remove('show');
+  const fb=document.getElementById('ef'+i);fb.classList.add('show');fb.style.color=ok?'#2ECC71':'var(--or)';
+  fb.innerHTML=(ok?'✅ Correct! ':'💡 Correct: '+ERROR_SENTENCES[i].opts[ERROR_SENTENCES[i].ans]+'. ')+ERROR_SENTENCES[i].fb;
+  if(ok)confetti();
+  if(Object.keys(errDone).length===ERROR_SENTENCES.length){
+    const tot=ERROR_SENTENCES.filter((_,i)=>errDone[i]===ERROR_SENTENCES[i].ans).length;
+    errScoreVal=Math.round((tot/ERROR_SENTENCES.length)*100);
+    document.getElementById('errScoreNum').textContent=tot+'/'+ERROR_SENTENCES.length;
+    document.getElementById('errScore').classList.add('show');
+    if(errScoreVal<70)document.getElementById('gate4').classList.add('show');
+    else{showCoach('🔍 Error spotting: '+errScoreVal+'%! Your grammar eye is sharp!',5000);if(errScoreVal>=90)confetti();}
+  }
+}
+function resetErrors(){errDone={};renderErrors();document.getElementById('errScore').classList.remove('show');document.getElementById('gate4').classList.remove('show');}
+
+// ── DIALOGUE ──
+function renderDialogue(){
+  document.getElementById('dialogueLines').innerHTML=DIALOGUE.map((d,i)=>`
+    <div class="dialogue-line">
+      <div class="dl-speaker">${d.speaker}</div>
+      <div class="dl-text">${d.fr}</div>
+      <div class="dl-en" id="den${i}" onclick="this.classList.toggle('show')">${d.en} — tap to reveal</div>
+      <div class="aud-row" style="margin-top:6px;gap:5px"><button class="btn-or" style="min-height:36px;font-size:.74rem" onclick="spk(DIALOGUE[${i}].fr,this)">🔊 Hear</button></div>
+    </div>`).join('');
+  document.getElementById('mirrorDialogue').innerHTML=DIALOGUE.map((d,i)=>`
+    <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r-sm);padding:12px;margin-bottom:9px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:5px;font-family:'Poppins',sans-serif">${d.speaker} — Line ${i+1}</div>
+      <div style="font-size:.88rem;color:var(--wh);font-family:'Lora',serif;margin-bottom:8px">${d.fr}</div>
+      <div class="aud-row" style="gap:5px">
+        <button class="btn-or" style="min-height:36px;font-size:.74rem" onclick="spk(DIALOGUE[${i}].fr,this)">🔊</button>
+        <button class="btn-rec" id="dr${i}" style="min-height:36px;font-size:.74rem" onclick="dRec('dr${i}','dp${i}')">🎤</button>
+        <button class="btn-pb" id="dp${i}" style="min-height:36px;font-size:.74rem" onclick="pBlob('dp${i}')">▶️</button>
+      </div>
+    </div>`).join('');
+}
+function renderPhraseBank(){
+  document.getElementById('phraseBankGrid').innerHTML=PHRASES.map(p=>`<div class="phrase-row"><div class="phrase-fr" onclick="spk('${p.fr.replace(/[()]/g,'')}',null)">${p.fr}</div><div class="phrase-en">${p.en}</div></div>`).join('');
+}
+function renderRolePlay(){
+  document.getElementById('rolePlay').innerHTML=ROLE_PROMPTS.map((p,i)=>`
+    <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r-sm);padding:13px;margin-bottom:10px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:6px;font-family:'Poppins',sans-serif">Prompt ${i+1}</div>
+      <div style="font-size:.87rem;color:var(--wh);margin-bottom:9px;font-weight:600">${p.en}</div>
+      <textarea class="txt-inp" id="rp${i}" rows="2" placeholder="Répondez en français..."></textarea>
+      <div class="aud-row" style="margin-top:6px;gap:5px">
+        <button class="btn-rec" id="rr${i}" style="min-height:36px;font-size:.74rem" onclick="dRec('rr${i}','rpb${i}')">🎤</button>
+        <button class="btn-pb" id="rpb${i}" style="min-height:36px;font-size:.74rem" onclick="pBlob('rpb${i}')">▶️</button>
+        <button class="btn-or" style="min-height:36px;font-size:.74rem" onclick="spk(document.getElementById('rp${i}').value,this)">🔊</button>
+      </div>
+      <div id="rpfb${i}" style="display:none;margin-top:6px;font-size:.78rem;font-weight:600"></div>
+    </div>`).join('');
+}
+function checkRolePlay(){
+  let ok=0;
+  ROLE_PROMPTS.forEach((p,i)=>{const v=document.getElementById('rp'+i).value;const good=p.check.test(v);const fb=document.getElementById('rpfb'+i);fb.style.display='block';fb.style.color=good?'#2ECC71':'var(--or)';fb.textContent=good?'✅ Great!':'💡 Include a time, place, or phrase from the Phrase Bank.';if(good)ok++;});
+  const pct=Math.round((ok/ROLE_PROMPTS.length)*100);
+  const fb=document.getElementById('roleFb');fb.style.display='block';fb.style.cssText=pct>=65?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(255,159,67,.1);color:var(--or)';
+  fb.textContent=ok+'/'+ROLE_PROMPTS.length+' good ('+pct+'%). '+(pct>=65?'Well done!':'Use the Grammar Chunks and try again.');
+  if(pct<65)document.getElementById('gate5').classList.add('show');
+  else{showCoach('🗣️ Role play: '+pct+'%!',4000);if(pct>=80)confetti();}
+}
+function resetRolePlay(){ROLE_PROMPTS.forEach((_,i)=>{document.getElementById('rp'+i).value='';document.getElementById('rpfb'+i).style.display='none';});document.getElementById('roleFb').style.display='none';document.getElementById('gate5').classList.remove('show');}
+
+// ── WRITING ──
+function startWritingTimer(){
+  if(writingStarted)return;writingStarted=true;
+  document.getElementById('freeWriteTA').disabled=false;document.getElementById('freeWriteTA').focus();
+  document.getElementById('timerStartBtn').style.display='none';
+  writingTimerInt=setInterval(()=>{
+    writingSecs--;const m=Math.floor(writingSecs/60),s=writingSecs%60;
+    const td=document.getElementById('timer-display');td.textContent=m+':'+(s<10?'0':'')+s;
+    if(writingSecs<=60)td.classList.add('urgent');
+    if(writingSecs<=0){clearInterval(writingTimerInt);document.getElementById('freeWriteTA').disabled=true;lockWriting();}
+  },1000);
+}
+function lockWriting(){
+  freeWriteText=document.getElementById('freeWriteTA').value;
+  document.getElementById('checkWriteBtn').style.display='flex';document.getElementById('hearWriteBtn').style.display='flex';
+  document.getElementById('speakWriteSection').style.display='block';
+  showCoach('⏱️ Time\'s up! Check your checklist, then read it aloud!',5000);
+}
+function updateFreeWC(){
+  const t=document.getElementById('freeWriteTA').value.trim();const wc=t?t.split(/\s+/).filter(w=>w.length>0).length:0;
+  document.getElementById('freeWC').textContent=wc+' words'+(wc>=80?' ✅':'  — aim for 80+');
+}
+function checkFreeWrite(){
+  const t=document.getElementById('freeWriteTA').value||freeWriteText;
+  const wc=t?t.split(/\s+/).filter(w=>w.length>0).length:0;
+  const checks=[
+    {label:'5 different times mentioned',ok:(t.match(/\b(heure|heures|midi|minuit|demie|quart)\b/gi)||[]).length>=5},
+    {label:'4 places around town',ok:(t.match(/\b(gare|pharmacie|école|mairie|supermarché|boulangerie|café|hôpital|marché|bibliothèque|bureau|cinéma|poste)\b/gi)||[]).length>=4},
+    {label:'3 phrases from Phrase Bank',ok:(t.match(/\b(occupé|retard|dois|faut|fatigué|détendu|temps|choses)\b/gi)||[]).length>=3},
+    {label:'2 dates mentioned',ok:(t.match(/\b(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b/gi)||[]).length>=2},
+    {label:"Uses 'il est' AND 'à [time]'",ok:/il est/.test(t)&&/à \w+ heure/.test(t)},
+    {label:'80+ words',ok:wc>=80}
+  ];
+  const cl=document.getElementById('writeChecklist');cl.style.display='block';
+  cl.innerHTML=checks.map(c=>`<div class="checklist-item ${c.ok?'ok':'fail'}">${c.ok?'✅':'❌'} ${c.label}</div>`).join('');
+  const passed=checks.filter(c=>c.ok).length;
+  if(passed>=5)confetti();
+  showCoach(passed>=5?'🏆 Excellent writing! Screenshot this.':'💡 Check the red items — add more times or places.',5000);
+  document.getElementById('shareWritingText').textContent=t.substring(0,200)+(t.length>200?'...':'');
+  document.getElementById('shareWCBadge').textContent=wc+' words';
+  document.getElementById('shareCard').style.display='block';
+}
+
+// ── FINAL QUIZ ──
+function renderFinalQuiz(){
+  document.getElementById('finalQuiz').innerHTML=FINAL_QUIZ.map((q,i)=>{
+    if(q.type==='open')return`<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:7px;font-family:'Poppins',sans-serif">Q${i+1} — Open Response</div><div class="mcq-q">${q.q}</div><textarea class="txt-inp" id="fq${i}" rows="2" placeholder="${q.placeholder}"></textarea></div>`;
+    return`<div class="mcq-wrap"><div style="font-size:.65rem;font-weight:800;color:var(--or);text-transform:uppercase;margin-bottom:7px;font-family:'Poppins',sans-serif">Q${i+1}</div><div class="mcq-q">${q.q}</div>${q.opts.map((o,j)=>`<div class="mcq-opt" id="fq${i}_${j}" onclick="selQuiz(${i},${j})"><div style="width:22px;height:22px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:800;flex-shrink:0">${String.fromCharCode(65+j)}</div>${o}</div>`).join('')}<div class="mcq-fb" id="ff${i}"></div></div>`;
+  }).join('');
+}
+function selQuiz(qi,oi){
+  if(quizDone[qi]!==undefined)return;quizDone[qi]=oi;
+  const ok=oi===FINAL_QUIZ[qi].ans;
+  FINAL_QUIZ[qi].opts.forEach((_,j)=>{const el=document.getElementById('fq'+qi+'_'+j);if(el){el.classList.add('dis');if(j===FINAL_QUIZ[qi].ans)el.classList.add('co');else if(j===oi&&!ok)el.classList.add('wo');}});
+  const fb=document.getElementById('ff'+qi);if(fb){fb.className='mcq-fb show';fb.style.cssText=ok?'background:rgba(46,204,113,.12);color:#2ECC71':'background:rgba(155,89,182,.12);color:#C39BD3';fb.textContent=ok?'✅ Correct!':'💡 Review the rules in Part 2.';}
+  if(ok)confetti();
+}
+function resetFinalQuiz(){quizDone={};renderFinalQuiz();document.getElementById('quizScore').classList.remove('show');document.getElementById('gate7').classList.remove('show');}
+function renderReflection(){
+  const qs=[
+    {id:'r1',q:"What was the most difficult part of telling time in French today, and why?",ph:"Ex: The hardest part was remembering moins le quart because..."},
+    {id:'r2',q:"Write one sentence you will use this week — about something real in your life.",ph:"Ex: Je vais à la gym à dix-neuf heures tous les mardis."},
+    {id:'r3',q:"How does today's lesson connect to your TCF/TEF Canada goal? Be specific.",ph:"Ex: This will help my TCF listening section because..."}
+  ];
+  document.getElementById('reflectionQuestions').innerHTML=qs.map(q=>`<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="font-size:.85rem;font-weight:700;color:var(--wh);margin-bottom:8px;line-height:1.5">${q.q}</div><textarea class="txt-inp" id="${q.id}" rows="3" placeholder="${q.ph}" oninput="reflAnswers['${q.id}']=this.value"></textarea></div>`).join('');
+}
+
+// ── COMPLETE ──
+function completeLesson(){
+  const mcqTotal=FINAL_QUIZ.filter((q,i)=>!q.type&&quizDone[i]===q.ans).length;
+  const mcqPoss=FINAL_QUIZ.filter(q=>!q.type).length;
+  quizScoreVal=Math.round((mcqTotal/Math.max(mcqPoss,1))*100);
+  document.getElementById('quizScoreNum').textContent=mcqTotal+'/'+mcqPoss;
+  document.getElementById('quizScoreLbl').textContent=quizScoreVal>=90?'🔥 Excellent! TCF-ready!':quizScoreVal>=70?'👏 Très bien! Keep practising.':'Review before next lesson.';
+  document.getElementById('quizScore').classList.add('show');
+  if(quizScoreVal<70){document.getElementById('gate7').classList.add('show');showCoach('💡 Below 70% — review Part 2 rules before completing.',5000);return;}
+  reflAnswers.r1=document.getElementById('r1')?.value||'';
+  reflAnswers.r2=document.getElementById('r2')?.value||'';
+  reflAnswers.r3=document.getElementById('r3')?.value||'';
+  clearInterval(timerInt);
+  const fw=freeWriteText||document.getElementById('freeWriteTA')?.value||'';
+  const wc=fw.split(/\s+/).filter(w=>w.length>0).length;
+  const m=Math.floor(lessonSecs/60),s=lessonSecs%60;
+  document.getElementById('statTime').textContent=m+'m '+s+'s';
+  document.getElementById('statWords').textContent=wc;
+  document.getElementById('statQuiz').textContent=quizScoreVal+'%';
+  document.getElementById('statSpeak').textContent=speakSessions;
+  document.getElementById('statMoodStart').textContent=moodStart||'?';
+  document.getElementById('statMoodEnd').textContent=moodEnd||'?';
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  document.getElementById('completionScreen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});confetti();
+  showCoach('🏆 Day 9 DONE! You can now tell any time in French. See you for Day 10!',10000);
+  saveToAirtable(wc,quizScoreVal,fw);
+}
+
+async function saveToAirtable(wc,qScore,fw){
+  const now=new Date().toISOString();
+  const passFail=qScore>=70?'PASS':'NEEDS REVIEW';
+  try{
+    await postAT(AT_LESSONS,{studentName:sName,studentEmail:sEmail,lessonNumber:9,lessonTopic:"Dire l'heure — Telling Time",submissionText:(fw||'').substring(0,800)||'(no writing)',wordsWritten:wc,writingScore:qScore,vocabularyScore:Math.round(listenScoreVal*0.5+compScoreVal*0.5),grammarScore:errScoreVal,wordsPerMinute:Math.round(wc/(Math.max(lessonSecs/60,1))),submittedAt:now});
+    const dlTxt=DIALOGUE.map((d,i)=>blobs['dp'+i]?d.fr:'').filter(Boolean).join(' | ');
+    await postAT(AT_SPEAKING,{studentName:sName,studentEmail:sEmail,speechTranscript:'Day9: '+dlTxt.substring(0,600),wordsSpoken:speakSessions*12,uniqueVocabularyCount:speakSessions*7,grammarComplexityLevel:'A1/A2',grammarAccuracyScore:errScoreVal,fluencyRating:Math.min(10,speakSessions),confidenceRating:Math.min(10,speakSessions+2),submittedAt:now});
+    await postAT(AT_REFLECT,{studentName:sName,studentEmail:sEmail,whatFeltHardToday:reflAnswers.r1||'—',biggestWin:'Quiz:'+qScore+'% Words:'+wc+' Speaking:'+speakSessions,whatSurprisedYouToday:reflAnswers.r2||'—',motivationLevel:moodEnd==='🔥'?10:moodEnd==='😄'?8:moodEnd==='🙂'?6:moodEnd==='😐'?4:3,submittedAt:now});
+    showToast('✅ Progress saved to Fast French Lab!');document.getElementById('savedConfirm').style.display='block';
+  }catch(err){showToast('⚠️ Save failed — stored locally.');localStorage.setItem('ffl_day9_'+sEmail,JSON.stringify({sName,sEmail,quizScore:qScore,wc,ts:now}));}
+}
+async function postAT(table,fields){
+  const r=await fetch('https://api.airtable.com/v0/'+AT_BASE+'/'+encodeURIComponent(table),{method:'POST',headers:{'Authorization':'Bearer '+AT_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({fields})});
+  if(!r.ok)throw new Error(await r.text());return r.json();
+}
+
+// ── COACH ──
+function showCoach(msg,dur){document.getElementById('coachMsgText').textContent=msg;document.getElementById('coachMsg').classList.add('show');if(cTimer)clearTimeout(cTimer);if(dur>0)cTimer=setTimeout(()=>document.getElementById('coachMsg').classList.remove('show'),dur);}
+function toggleCoach(){const msgs=["For TCF, always use the 24-hour clock in writing — it shows sophistication!","Remember: à+le=au | à+la=à la | à+l'=à l'. Non-negotiable!","For time, ALWAYS use 'il est'. Never 'c'est une heure'!","Practise saying times when you check your phone. Habit = fluency.","TCF rewards students who write times in full French words.","Every mistake today is one you won't make on exam day!","Your accent doesn't need to be perfect — your grammar does.","Keep going — TCF success is built lesson by lesson."];document.getElementById('coachMsg').classList.contains('show')?document.getElementById('coachMsg').classList.remove('show'):showCoach(msgs[Math.floor(Math.random()*msgs.length)],6000);}
+
+// ── TOAST ──
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',4000);}
+
+// ── COLLAPSIBLE ──
+function toggleCol(id){document.getElementById(id).classList.toggle('open');}
+
+// ── CONFETTI ──
+function confetti(){
+  const box=document.getElementById('confettiBox');box.style.display='block';box.innerHTML='';
+  ['#FF9F43','#2ECC71','#E74C3C','#9B59B6','#3498DB','#F1C40F'].forEach(col=>{
+    for(let i=0;i<7;i++){const cf=document.createElement('div');cf.className='cf';cf.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*15}%;background:${col};animation-delay:${Math.random()*.9}s;animation-duration:${1.6+Math.random()}s`;box.appendChild(cf);}
+  });
+  setTimeout(()=>{box.style.display='none';box.innerHTML='';},3000);
+}
+
+// ── DICT ──
+function openDict(){document.getElementById('dictPanel').style.transform='translateY(0)';setTimeout(()=>document.getElementById('dpWord').focus(),300);}
+function closeDict(){document.getElementById('dictPanel').style.transform='translateY(100%)';}
+function dpLookup(){
+  const w=document.getElementById('dpWord').value.trim();if(!w)return;const enc=encodeURIComponent(w);
+  document.getElementById('dpLinks').innerHTML=
+    `<a class="dp-link" onclick="window.open('https://context.reverso.net/translation/french-english/${enc}','reverso','width=960,height=640,scrollbars=yes,resizable=yes');return false">🔍 Reverso</a>`+
+    `<a class="dp-link" onclick="window.open('https://www.wordreference.com/fren/${enc}','wr','width=900,height=620,scrollbars=yes,resizable=yes');return false">📖 WordRef</a>`+
+    `<a class="dp-link" onclick="window.open('https://fr.wiktionary.org/wiki/${enc}','wikt','width=860,height=600,scrollbars=yes,resizable=yes');return false">📚 Wiktionnaire</a>`;
+  spk(w,null);
+}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('dpWord').addEventListener('keydown',e=>{if(e.key==='Enter')dpLookup();});});
+
+// ── BUILD ──
+function buildUI(){
+  buildDots();buildProgSegs();
+  renderCloze();renderClockChallenges();renderListening();renderPlanning();
+  renderComp();renderUbar3();renderErrors();
+  renderPhraseBank();renderDialogue();renderRolePlay();
+  renderFinalQuiz();renderReflection();
+  updProg();
+}
+window.addEventListener('load',()=>{window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();});
+</script>
+</body>
+</html>
